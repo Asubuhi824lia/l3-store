@@ -4,6 +4,7 @@ import { formatPrice } from '../../utils/helpers';
 import { ProductData } from 'types';
 import html from './productDetail.tpl.html';
 import { cartService } from '../../services/cart.service';
+import { favService } from '../../services/fav.service';
 
 class ProductDetail extends Component {
   more: ProductList;
@@ -32,6 +33,7 @@ class ProductDetail extends Component {
     this.view.description.innerText = description;
     this.view.price.innerText = formatPrice(salePriceU);
     this.view.btnBuy.onclick = this._addToCart.bind(this);
+    this.view.btnFav.onclick = this._addToFav.bind(this);
 
     const isInCart = await cartService.isInCart(this.product);
 
@@ -55,6 +57,12 @@ class ProductDetail extends Component {
 
     cartService.addProduct(this.product);
     this._setInCart();
+  }
+
+  private _addToFav() {
+    if (!this.product) return;
+
+    favService.addProduct(this.product);
   }
 
   private _setInCart() {

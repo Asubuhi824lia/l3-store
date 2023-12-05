@@ -85,6 +85,8 @@ img {
 }
 
 .btnFav {
+  cursor: pointer;
+
   border: 0;
   background: none;
   padding: 0;
@@ -118,6 +120,10 @@ img {
   &.is__large {
     font-size: 1.25em;
   }
+}
+
+.fav{
+  margin-right: 20px;
 }
 
 .cart {
