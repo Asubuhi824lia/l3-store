@@ -4,6 +4,9 @@ import html from './checkout.tpl.html';
 import { formatPrice } from '../../utils/helpers';
 import { cartService } from '../../services/cart.service';
 import { ProductData } from 'types';
+import localforage from 'localforage';
+
+const DB = '__wb-orderId';
 
 class Checkout extends Component {
   products!: ProductData[];
@@ -25,7 +28,22 @@ class Checkout extends Component {
     const totalPrice = this.products.reduce((acc, product) => (acc += product.salePriceU), 0);
     this.view.price.innerText = formatPrice(totalPrice);
 
-    this.view.btnOrder.onclick = this._makeOrder.bind(this);
+    this.view.btnOrder.onclick = () => {
+      this._makeOrder.bind(this);
+      this._notifyOrder.call(this, totalPrice)
+    }
+  }
+
+  async clear() {
+    await localforage.removeItem(DB);
+  }
+
+  async get(): Promise<number> {
+    return (await localforage.getItem(DB)) || 0;
+  }
+
+  async set(data: number) {
+    await localforage.setItem(DB, data);
   }
 
   private async _makeOrder() {
@@ -35,6 +53,23 @@ class Checkout extends Component {
       body: JSON.stringify(this.products)
     });
     window.location.href = '/?isSuccessOrder';
+    this._notifyOrder.bind(this)
+  }
+
+  private async _notifyOrder(totalPrice: number) {
+    const orderId = await this.get()
+    await fetch(' /api/sendEvent', {
+      method: 'POST',
+      body: JSON.stringify({
+        type: 'purchase', 
+        payload: { 
+          orderId: orderId, 
+          totalPrice: totalPrice, 
+          productIds: this.products.map(product => product.id) 
+        }
+      })
+    })
+    await this.set(orderId+1)
   }
 }
 

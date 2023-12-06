@@ -28,7 +28,19 @@ export default class Router {
     // @ts-ignore
     const component = ROUTES[window.location.pathname] || notFoundComp;
 
+    this._notifGoToPage()
+
     component.attach(this.$appRoot);
     component.render();
+  }
+
+  private _notifGoToPage() {
+    fetch(' /api/sendEvent', {
+      method: 'POST',
+      body: JSON.stringify({
+        type: 'route', 
+        payload: window.location.pathname
+      })
+    })
   }
 }
