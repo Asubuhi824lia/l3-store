@@ -33,7 +33,9 @@ class ProductDetail extends Component {
     this.view.description.innerText = description;
     this.view.price.innerText = formatPrice(salePriceU);
     this.view.btnBuy.onclick = this._addToCart.bind(this);
-    this.view.btnFav.onclick = this._addToFav.bind(this);
+    this.view.btnFav.onclick = this._toggleFav.bind(this);
+
+    this.view.btnFav.querySelector('use').setAttribute('xlink:href', await favService.isInFav(this.product) ? '#favorited' : '#heart')
 
     const isInCart = await cartService.isInCart(this.product);
 
@@ -59,10 +61,24 @@ class ProductDetail extends Component {
     this._setInCart();
   }
 
+  private _toggleFav() {
+    if(this.view.btnFav.querySelector('use').getAttribute('xlink:href') == '#heart') {
+      this._addToFav()
+    } else {
+      this._removeFromFav()
+    }
+  }
   private _addToFav() {
     if (!this.product) return;
-
+    
+    this.view.btnFav.querySelector('use').setAttribute('xlink:href', '#favorited')
     favService.addProduct(this.product);
+  }
+  private _removeFromFav() {
+    if (!this.product) return;
+
+    this.view.btnFav.querySelector('use').setAttribute('xlink:href', '#heart')
+    favService.removeProduct(this.product);
   }
 
   private _setInCart() {
