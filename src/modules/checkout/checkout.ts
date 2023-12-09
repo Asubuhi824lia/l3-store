@@ -29,7 +29,7 @@ class Checkout extends Component {
     this.view.price.innerText = formatPrice(totalPrice);
 
     this.view.btnOrder.onclick = () => {
-      this._makeOrder.bind(this);
+      this._makeOrder.call(this);
       this._notifyOrder.call(this, totalPrice)
     }
   }
@@ -53,7 +53,6 @@ class Checkout extends Component {
       body: JSON.stringify(this.products)
     });
     window.location.href = '/?isSuccessOrder';
-    this._notifyOrder.bind(this)
   }
 
   private async _notifyOrder(totalPrice: number) {

@@ -28,9 +28,19 @@ export class Product {
     this.view.img.setAttribute('src', src);
     this.view.title.innerText = name;
     this.view.price.innerText = formatPrice(salePriceU);
-    document.addEventListener('scroll', () => {this._notifViewCard()});
+
+    document.addEventListener('scroll', this._getNotifyFunc.call(this));
 
     if (this.params.isHorizontal) this.view.root.classList.add('is__horizontal')
+  }
+
+  private _getNotifyFunc() {
+    let timeout: any;
+  
+    return () => {
+        clearTimeout(timeout)
+        timeout = setTimeout(this._notifViewCard.bind(this), 500)
+    }
   }
 
   private async _notifViewCard() {
@@ -39,15 +49,17 @@ export class Product {
       .then((res) => res.json())
       .then((secretKey) => 
       {
-          fetch(' /api/sendEvent', {
-            method: 'POST',
-            body: JSON.stringify({
-              type: this.product.log ? 'viewCardPromo' : 'viewCard', 
-              payload: this.product + secretKey
-            })
+        fetch(' /api/sendEvent', {
+          method: 'POST',
+          body: JSON.stringify({
+            type: this.product.log ? 'viewCardPromo' : 'viewCard', 
+            payload: this.product + secretKey
           })
-        }
-      );
+        })
+        console.log('In viewport: ', this.product.id)
+      })
+    } else {
+      console.log('Miss')
     }
   }
 
